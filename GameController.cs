@@ -12,11 +12,20 @@ public class GameController : MonoBehaviour
     private float generateCounter = 0f;
     private int curWave = 1;
     private bool changingLevel = false;
+    private float t = 0;
+
+    private BonusGenerator bonusGenerator;
 
     public GameObject projectile;
+    public GameObject city;
+    public GameObject blocks;
+    public GameObject lineRenderer;
     public float coldown = 3f;
+    public float changeColorTime = 15f;
+    public float changeWavePauseTime = 5f;
     public int projesKilled = 0;
-    public int baseAmountOfProjs = 50;
+    public int totalProjsKilled = 0;
+    public int curAmountOfProjs = 50;
     public int projsToAddPerWave = 10;
 
     // Start is called before the first frame update
@@ -36,27 +45,39 @@ public class GameController : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         mainCam = Camera.main.GetComponent<Camera>();
+        bonusGenerator = GetComponent<BonusGenerator>();
+
+        print(Screen.width + " " + Screen.height);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (projesKilled >= baseAmountOfProjs)
+        if (projesKilled >= curAmountOfProjs)
         {
             StartCoroutine(ChangeWave());
         }
 
         if (!changingLevel)
         {
-            ChangeCamBackgroundByTime();
+            ChangeCamBackgroundByTime(Color.grey + new Color(0.3f, 0.3f, 0.3f, 0), Color.grey - new Color(0.4f, 0.4f, 0.4f, 0), changeColorTime);
             GenerateProjectiles();
+        }
+
+        else if(changingLevel)
+        {
+            ChangeCamBackgroundByTime(Color.grey - new Color(0.4f, 0.4f, 0.4f, 0), Color.grey + new Color(0.3f, 0.3f, 0.3f, 0), changeWavePauseTime);
         }
     }
 
-    void ChangeCamBackgroundByTime()
+    void ChangeCamBackgroundByTime(Color colorFrom, Color colorTo, float duration)
     {
-        float val = Mathf.PingPong(Time.time /10, 1);
-        mainCam.backgroundColor = Color.Lerp(Color.blue, Color.white, val);
+        //float val = Mathf.PingPong(Time.time /10, 1);
+        mainCam.backgroundColor = Color.Lerp(colorFrom, colorTo, t);
+        if (t < 1)
+        {
+            t += Time.deltaTime / duration;
+        } 
     }
 
     void GenerateProjectiles()
@@ -72,21 +93,34 @@ public class GameController : MonoBehaviour
     public void IncreaseKills(int num)
     {
         projesKilled += num;
-        
+        totalProjsKilled += num;
+        if(totalProjsKilled % 20 == 0)
+        {
+            bonusGenerator.DropBonus();
+        }
     }
 
     IEnumerator ChangeWave()
     {
         changingLevel = true;
-        baseAmountOfProjs += projsToAddPerWave + (int)(curWave * 0.5);
-        print("Wave " + curWave + " has ended\nOn next wave you need to kill " + baseAmountOfProjs + " projs");
+        t = 0;
+        curAmountOfProjs += projsToAddPerWave + (int)(curWave * 0.5);
+        print("Wave " + curWave + " has ended\nOn next wave you need to kill " + curAmountOfProjs + " projs");
 
-        yield return new WaitForSeconds(3);
+        yield return new WaitForSeconds(changeWavePauseTime);
+        changeColorTime += 5;
 
         projesKilled = 0;
         curWave++;
         coldown -= coldown * 0.03f;
         changingLevel = false;
+        t = 0;
+    }
+
+    void GameOver()
+    {
+        print("GAME OVER");
+        changingLevel = true;
     }
 
 }
