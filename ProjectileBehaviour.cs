@@ -45,7 +45,7 @@ public class ProjectileBehaviour : MonoBehaviour
             dieDelay -= Time.deltaTime;
             if(dieDelay <= 0)
             {
-                Destroy(gameObject);
+                DestroyProjectile();
             }
         }
     }
@@ -56,10 +56,11 @@ public class ProjectileBehaviour : MonoBehaviour
         GetComponent<SpriteRenderer>().color = Color.Lerp(colorA, colorB, val);
     }
 
-    private void OnDestroy()
+    public void DestroyProjectile()
     {
         GameObject explosion = transform.localScale.x < 0.65 ? shortExplosion : mediumExplosion;
         explosion = Instantiate(explosion, transform.position, Quaternion.identity);
         Destroy(explosion, 0.5f);
+        Destroy(gameObject);
     }
 }

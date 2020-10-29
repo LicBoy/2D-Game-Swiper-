@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Timeline;
 
@@ -17,22 +18,22 @@ public class MouseMovement : MonoBehaviour
     private float mirrorLineBonusDuration;
     private float counterOfLive = 0f;
     private float curveWidthMultiplayer;
+    private float defaultTimeToLive;
     private int ind = 0;
-    private int oneSwipeKillsCounter = 0;
     private bool killedProj = false;
     private bool lineDurationBonusActive = false;
     private bool lineBiggerBonusActive = false;
     private bool mirrorLineBonusActive = false;
     private Gradient currentLineGradient;
     private Gradient defaultLineGradient;
-    private Gradient bigLineGradient = new Gradient();
-    private Gradient killedProjLineGradient = new Gradient();
 
     public float timeToLive = 0.5f;
+    public int oneSwipeKillsCounter = 0;
     public GameObject gun;
-    public GameObject mirrorLine;
-    public Color[] bigLineColors = new Color[4];
-    public Color[] killedProjColors = new Color[4];
+    public LineRenderer mirrorLine;
+    public StreakUIController StreakUIController;
+    public Gradient bigLineGradient = new Gradient();
+    public Gradient killedProjLineGradient = new Gradient();
 
     // Start is called before the first frame update
     void Start()
@@ -41,26 +42,11 @@ public class MouseMovement : MonoBehaviour
         curveWidthMultiplayer = linerend.widthMultiplier;
         defaultLineGradient = linerend.colorGradient;
         currentLineGradient = defaultLineGradient;
+        defaultTimeToLive = timeToLive;
 
         edgeCollider = GetComponent<EdgeCollider2D>();
 
-        GradientColorKey[] bigLineColorKeys = new GradientColorKey[bigLineColors.Length];
-        GradientColorKey[] killedProjColorKeys = new GradientColorKey[killedProjColors.Length];
-        for (int i = 0; i < bigLineColorKeys.Length; i++)
-        {
-            bigLineColorKeys[i] = new GradientColorKey(bigLineColors[i], defaultLineGradient.colorKeys[i].time);
-            killedProjColorKeys[i] = new GradientColorKey(killedProjColors[i], defaultLineGradient.colorKeys[i].time);
-        }
-              
-        bigLineGradient.colorKeys = bigLineColorKeys;
-        killedProjLineGradient.colorKeys = killedProjColorKeys;
-
-        foreach(GradientColorKey colorkey in defaultLineGradient.colorKeys)
-        {
-            print(colorkey.color);
-        }
-
-        mirrorLine.SetActive(false);
+        mirrorLine.gameObject.SetActive(false);
         gun.SetActive(false);
     }
 
@@ -69,56 +55,70 @@ public class MouseMovement : MonoBehaviour
     {
         if(lineDurationBonusActive)
         {
-            counterOfLineDurBonus += Time.deltaTime;
             if (counterOfLineDurBonus > lineDurBonusDuration)
             {
                 lineDurationBonusActive = false;
                 counterOfLineDurBonus = 0;
-                timeToLive /= 2;
+                timeToLive = defaultTimeToLive;
             }
+            counterOfLineDurBonus += Time.deltaTime;
         }
 
         if (lineBiggerBonusActive)
         {
-            counterOfLineBiggerBonus += Time.deltaTime;
             if (counterOfLineBiggerBonus > lineBiggerBonusDuration)
             {
                 lineBiggerBonusActive = false;
                 counterOfLineBiggerBonus = 0;
                 curveWidthMultiplayer /= 2;
                 edgeCollider.edgeRadius -= 0.5f;
+                linerend.colorGradient = defaultLineGradient;
                 currentLineGradient = defaultLineGradient;
+                mirrorLine.GetComponent<MirrorLineColliderScript>().ChangeColorToDefault(lineBiggerBonusActive);
+                print("line bigger end");
             }
+            counterOfLineBiggerBonus += Time.deltaTime;
         }
 
         if (mirrorLineBonusActive)
         {
-            counterMirrorLineBonus += Time.deltaTime;
-            if (counterMirrorLineBonus > mirrorLineBonusDuration)
+            if (counterMirrorLineBonus >= 27)
             {
-                print("Mirror end");
-                mirrorLineBonusActive = false;
-                counterMirrorLineBonus = 0;
-                mirrorLine.SetActive(false);
+                mirrorLine.GetComponent<MirrorLineColliderScript>().isBlinking = true;
+                if (counterMirrorLineBonus > mirrorLineBonusDuration)
+                {
+                    mirrorLineBonusActive = false;
+                    counterMirrorLineBonus = 0;
+                    mirrorLine.GetComponent<MirrorLineColliderScript>().isBlinking = false;
+                    mirrorLine.gameObject.SetActive(false);
+                }
             }
+            counterMirrorLineBonus += Time.deltaTime;
         }
 
-        DrawLine();
+        DrawLine(mirrorLineBonusActive);
     }
 
 
-    private void DrawLine()
+    private void DrawLine(bool mirrorBonusActive)
     {
-
         if (Input.GetMouseButton(0) && counterOfLive < timeToLive)
         {
             //linerend.SetPosition(1, GetMouseVector3());
-            counter += Time.deltaTime;
-            counterOfLive += Time.deltaTime;
-            if (counter >= 0.1f) //Time before creating new vertice in Line
+            if (counter >= 0.05f) //Time before creating new vertice in Line
             {
                 linerend.positionCount = ind + 1;
-                linerend.SetPosition(ind, GetMouseVector3());
+                Vector3 mousePos = GetMouseVector3();
+                linerend.SetPosition(ind, mousePos);
+
+                if (mirrorBonusActive)
+                {
+                    mirrorLine.positionCount = ind + 1;
+                    Vector3 mouseMirrorPos = mousePos;
+                    mouseMirrorPos = new Vector3(-mouseMirrorPos.x, mouseMirrorPos.y, mouseMirrorPos.z);
+                    mirrorLine.SetPosition(ind, mouseMirrorPos);
+                }
+
                 ind += 1;
                 counter = 0f;
             }
@@ -127,16 +127,29 @@ public class MouseMovement : MonoBehaviour
             linerend.GetPositions(newPos);
             edgeCollider.points = ConvertArray(newPos);
 
+            if(mirrorBonusActive)
+            {
+                Vector3[] newPosMirror = new Vector3[mirrorLine.positionCount];
+                mirrorLine.GetPositions(newPosMirror);
+                mirrorLine.GetComponent<EdgeCollider2D>().points = ConvertArray(newPosMirror);
+            }
+
             if (killedProj)
             {
                 linerend.colorGradient = killedProjLineGradient;
+                if (mirrorBonusActive)
+                    mirrorLine.GetComponent<MirrorLineColliderScript>().ChangeColorToKilledProj();
             }
+
+            counter += Time.deltaTime;
+            counterOfLive += Time.deltaTime;
         }
 
         else if (Input.GetMouseButtonUp(0) || counterOfLive >= timeToLive)
         {
             killedProj = false;
             oneSwipeKillsCounter = 0;
+            mirrorLine.gameObject.GetComponent<MirrorLineColliderScript>().oneSwipeKillCounterMirror = 0;
             linerend.widthMultiplier = curveWidthMultiplayer;
             linerend.colorGradient = currentLineGradient;
 
@@ -145,6 +158,13 @@ public class MouseMovement : MonoBehaviour
             edgeCollider.points = empty;
             ind = 0;
             counterOfLive = 0f;
+
+            if (mirrorBonusActive)
+            {
+                mirrorLine.positionCount = 0;
+                mirrorLine.GetComponent<EdgeCollider2D>().points = empty;
+                mirrorLine.GetComponent<MirrorLineColliderScript>().ChangeColorToDefault(lineBiggerBonusActive);
+            }
         }
     }
 
@@ -155,12 +175,15 @@ public class MouseMovement : MonoBehaviour
         {
             otherProjectileObject.marked = true;
             killedProj = true;
-            GunAnimation(other);
+            GameController.instance.IncreaseKills(1);
             oneSwipeKillsCounter += 1;
             linerend.widthMultiplier *= oneSwipeKillsCounter;
+
             linerend.widthMultiplier = Mathf.Clamp(linerend.widthMultiplier, curveWidthMultiplayer, curveWidthMultiplayer*3);
-            GameController.instance.SendMessage("IncreaseKills", 1);
-            //Destroy(other.gameObject);
+            if (oneSwipeKillsCounter > 2)
+            {
+                StreakUIController.ShowStreak(oneSwipeKillsCounter);
+            }
         }
     }
 
@@ -173,16 +196,19 @@ public class MouseMovement : MonoBehaviour
         gun.transform.rotation = Quaternion.Euler(0, 0, angleDeg);
     }
 
-    public void ChangeLineDuration(float duration)
+    public void ChangeLineDuration(float duration, bool isInfinite = false)
     {
         lineDurBonusDuration = duration;
+        lineDurationBonusActive = true;
         if (lineDurationBonusActive)
             counterOfLineDurBonus = 0;
-            
-        else
+        if (!isInfinite)
         {
             timeToLive *= 2;
-            lineDurationBonusActive = true;
+        }
+        else
+        {
+            timeToLive = duration;
         }
     }
 
@@ -194,10 +220,13 @@ public class MouseMovement : MonoBehaviour
 
         else
         {
+            print("Line bigger started");
             curveWidthMultiplayer *= 2;
             edgeCollider.edgeRadius += 0.5f;
             lineBiggerBonusActive = true;
             currentLineGradient = bigLineGradient;
+            linerend.colorGradient = bigLineGradient;
+            mirrorLine.GetComponent<MirrorLineColliderScript>().ChangeColorToBigger();
         }
     }
 
@@ -208,12 +237,12 @@ public class MouseMovement : MonoBehaviour
         {
             counterMirrorLineBonus = 0;
         }
-            
-
         else
         {
-            print("Mirror start");
-            mirrorLine.SetActive(true);
+            mirrorLine.positionCount = 0;
+            Vector2[] empty = new Vector2[2] { Vector2.zero, Vector2.zero };
+            mirrorLine.GetComponent<EdgeCollider2D>().points = empty;
+            mirrorLine.gameObject.SetActive(true);
             mirrorLineBonusActive = true;
         }
     }

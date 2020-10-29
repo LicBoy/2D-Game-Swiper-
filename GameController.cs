@@ -27,6 +27,7 @@ public class GameController : MonoBehaviour
     public int totalProjsKilled = 0;
     public int curAmountOfProjs = 50;
     public int projsToAddPerWave = 10;
+    public int playerScore = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -117,10 +118,9 @@ public class GameController : MonoBehaviour
         t = 0;
     }
 
-    void GameOver()
+    public void GameOver()
     {
         print("GAME OVER");
         changingLevel = true;
     }
-
 }
