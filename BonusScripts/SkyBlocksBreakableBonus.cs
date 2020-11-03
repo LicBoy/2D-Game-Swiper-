@@ -1,7 +1,7 @@
-﻿public class SkyBlocksBonus : Bonus
+﻿public class SkyBlocksBreakableBonus : Bonus
 {
     public float duration = 30;
-    public bool isBreakable = false;
+    public bool isBreakable = true;
 
     public override void ActivateBonus()
     {

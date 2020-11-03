@@ -1,22 +1,21 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Linq;
 using UnityEngine;
 
 public class SkyBlocks : MonoBehaviour
 {
-    public GameObject[] blocks = new GameObject[2];
-    private float counter = 0f;
-    private float bonusDuration;
-    private bool activated = false;
-    private Color originalColor;
+    public int health = 25;
+    public bool isBreakable = false;
 
-    private void Start()
+    protected float counter = 0f;
+    protected float bonusDuration;
+    protected bool activated = false;
+    protected Color originalColor;
+    private int lastTouched;
+
+    void Start()
     {
-        foreach(GameObject obj in blocks)
-        {
-            obj.SetActive(false);
-        }
-        originalColor = blocks[0].GetComponent<SpriteRenderer>().color;
+        originalColor = gameObject.GetComponent<SpriteRenderer>().color;
+        gameObject.SetActive(false);
     }
 
     // Update is called once per frame
@@ -31,37 +30,61 @@ public class SkyBlocks : MonoBehaviour
             if (counter > bonusDuration)
             {
                 counter = 0;
-                print("End of skyblocks");
                 activated = false;
-                foreach (GameObject obj in blocks)
-                {
-                    obj.SetActive(false);
-                    obj.GetComponent<SpriteRenderer>().color = originalColor;
-                }
+                health = 25;
+                gameObject.GetComponent<SpriteRenderer>().color = originalColor;
+                gameObject.SetActive(false);
             }
         }
     }
 
-    void ActivateBlocks(float duration)
+    public void ActivateBlocks(float duration, bool isBreak)
     {
+        isBreakable = isBreak;
         bonusDuration = duration;
-        print("BLOX ACTIVATED");
         if (activated)
+        {
+            gameObject.SetActive(true);
             counter = 0;
+        }
+            
         else
         {
             activated = true;
-            foreach(GameObject obj in blocks)
-            {
-                obj.SetActive(true);
-            }
+            gameObject.SetActive(true);
         }
     }
 
     void FastBlink(Color colorA, Color colorB)
     {
         float val = Mathf.PingPong(Time.time * 10, 1);
-        foreach(GameObject obj in blocks)
-            obj.GetComponent<SpriteRenderer>().color = Color.Lerp(colorA, colorB, val);
+        gameObject.GetComponent<SpriteRenderer>().color = Color.Lerp(colorA, colorB, val);
+    }
+
+    public void OnCollisionEnter2D(Collision2D other)
+    {
+        if(isBreakable)
+        {
+            ProjectileBehaviour projObj = other.gameObject.GetComponent<ProjectileBehaviour>();
+            if (projObj != null && lastTouched != other.gameObject.GetInstanceID())
+            {
+                lastTouched = other.gameObject.GetInstanceID();
+                GetDamage(projObj.damage);
+            }
+        }
+    }
+
+    public void GetDamage(int val)
+    {
+        health -= val;
+        if (health <= 0)
+            DestroyBlock();
+    }
+
+    public void DestroyBlock()
+    {
+        health = 25;
+        gameObject.GetComponent<SpriteRenderer>().color = originalColor;
+        gameObject.SetActive(false);
     }
 }

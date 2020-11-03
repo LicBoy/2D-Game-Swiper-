@@ -1,7 +1,9 @@
-﻿using System;
+﻿using JetBrains.Annotations;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
 
 public class GameController : MonoBehaviour
 {
@@ -10,15 +12,14 @@ public class GameController : MonoBehaviour
     private Camera mainCam;
     private float[] bordersX = new float[2] {-2.5f, 2.5f };
     private float generateCounter = 0f;
-    private int curWave = 1;
     private bool changingLevel = false;
     private float t = 0;
 
     private BonusGenerator bonusGenerator;
 
+    public Player player;
+    public SkyBlocks[] blocks = new SkyBlocks[2];
     public GameObject projectile;
-    public GameObject city;
-    public GameObject blocks;
     public GameObject lineRenderer;
     public float coldown = 3f;
     public float changeColorTime = 15f;
@@ -44,6 +45,8 @@ public class GameController : MonoBehaviour
         // Теперь нам нужно указать, чтобы объект не уничтожался
         // при переходе на другую сцену игры
         DontDestroyOnLoad(gameObject);
+
+        StartCoroutine("LoadPlayerData"); //loading player data at the start of the scene
 
         mainCam = Camera.main.GetComponent<Camera>();
         bonusGenerator = GetComponent<BonusGenerator>();
@@ -91,10 +94,13 @@ public class GameController : MonoBehaviour
         }
     }
 
-    public void IncreaseKills(int num)
+    public void IncreaseKills(int swipeCounter)
     {
-        projesKilled += num;
-        totalProjsKilled += num;
+        projesKilled += 1;
+        totalProjsKilled += 1;
+        //num is always 1
+        int countedScore = (swipeCounter > 2) ? 5 * swipeCounter : 10;
+        player.ChangeScore(countedScore);
         if(totalProjsKilled % 20 == 0)
         {
             bonusGenerator.DropBonus();
@@ -105,21 +111,59 @@ public class GameController : MonoBehaviour
     {
         changingLevel = true;
         t = 0;
-        curAmountOfProjs += projsToAddPerWave + (int)(curWave * 0.5);
-        print("Wave " + curWave + " has ended\nOn next wave you need to kill " + curAmountOfProjs + " projs");
+        player.ChangeWave();
+        curAmountOfProjs += projsToAddPerWave + (int)(player.wave * 0.5);
+        print("Wave " + (player.wave-1).ToString() + " has ended\nOn next wave you need to kill " + curAmountOfProjs + " projs");
 
+        //Changing player data if needed
+        if (player.score > player.highscore)
+            player.highscore = player.score;
+        if (player.wave > player.maxWave)
+            player.maxWave = player.wave;
+        print("Cur highscore: " + player.highscore + "\nCur MaxWave: " + player.maxWave);
+        player.SavePlayer(); //saving player on wave change
+
+        GetComponent<ChangeWaveUI>().StartCoroutine("ShowChangeWaveAnimation", player.wave);
+        GetComponent<ChangeWaveUI>().BonusPanelAppear();
         yield return new WaitForSeconds(changeWavePauseTime);
         changeColorTime += 5;
 
         projesKilled = 0;
-        curWave++;
         coldown -= coldown * 0.03f;
         changingLevel = false;
         t = 0;
     }
 
+    IEnumerator LoadPlayerData()
+    {
+        print("Loading player from " + Application.persistentDataPath);
+        player.LoadPlayer();
+        for(int i=1; i<=player.wave; i++)
+        {
+            if (i == 1)
+                continue;
+            curAmountOfProjs += projsToAddPerWave + (int)(i * 0.5);
+            coldown -= coldown * 0.03f;
+            changeColorTime += 5;
+        }
+
+        GetComponent<ChangeWaveUI>().StartCoroutine("ShowChangeWaveAnimation", player.wave);
+        changingLevel = true;
+        yield return new WaitForSeconds(changeWavePauseTime);
+        changingLevel = false;
+    }
+
     public void GameOver()
     {
+        if (player.score > player.highscore)
+            player.highscore = player.score;
+        if (player.wave > player.maxWave)
+            player.maxWave = player.wave;
+        player.health = 100;
+        player.armor = 0;
+        player.wave = 1;
+        player.score = 0;
+        player.SavePlayer();
         print("GAME OVER");
         changingLevel = true;
     }

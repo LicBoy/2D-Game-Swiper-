@@ -4,7 +4,7 @@
 
     public override void ActivateBonus()
     {
-        GameController.instance.city.GetComponent<CityScript>().GiveArmor(amountOfArmor);
+        GameController.instance.player.GiveArmor(amountOfArmor);
         base.ActivateBonus();
     }
 }

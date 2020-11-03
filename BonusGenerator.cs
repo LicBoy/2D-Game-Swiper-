@@ -11,25 +11,20 @@ public class BonusGenerator : MonoBehaviour
     private float[] spawnPosX = new float[2] {-2.5f, 2.5f };
     private float spawnPosY = 5.5f;
 
-    // Start is called before the first frame update
-    void Start()
+    public void DropBonus(GameObject knownBonus = null)
     {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    public void DropBonus()
-    {
-        GameObject bonusObject = RandomizeBonus();
-        if (bonusObject != null)
+        if (knownBonus == null)
+        {
+            knownBonus = RandomizeBonus();
+            if (knownBonus == null)
+            {
+                Debug.LogError("Couldn't randomize bonus, check RandomizeBonus() func!");
+            }
+        }
+        else
         {
             Vector3 spawnPos = new Vector3(UnityEngine.Random.Range(spawnPosX[0], spawnPosX[1]), spawnPosY, 0);
-            GameObject bonus = GameObject.Instantiate(bonusObject, spawnPos, Quaternion.identity);
+            GameObject.Instantiate(knownBonus, spawnPos, Quaternion.identity);
         }
     }
 
@@ -49,5 +44,18 @@ public class BonusGenerator : MonoBehaviour
 
         print(bonuses[indOfMax].bonusName);
         return bonuses[indOfMax].gameObject; 
+    }
+
+    public GameObject[] RandomBonusPanel()
+    {
+        GameObject[] bonuses = new GameObject[3];
+
+        for(int k=0; k<3; k++)
+        {
+            GameObject bonusRand = RandomizeBonus();
+            bonuses[k] = bonusRand;
+        }
+
+        return bonuses;
     }
 }

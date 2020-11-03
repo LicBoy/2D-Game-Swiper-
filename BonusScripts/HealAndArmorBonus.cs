@@ -5,8 +5,8 @@
 
     public override void ActivateBonus()
     {
-        GameController.instance.city.GetComponent<CityScript>().Heal(amountOfHeal);
-        GameController.instance.city.GetComponent<CityScript>().GiveArmor(amountOfArmor);
+        GameController.instance.player.Heal(amountOfHeal);
+        GameController.instance.player.GiveArmor(amountOfArmor);
         base.ActivateBonus();
     }
 }

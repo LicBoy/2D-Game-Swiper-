@@ -14,7 +14,6 @@ public class StreakUIController : MonoBehaviour
     private Color currentStreakColor;
     private Color originalStreakWordColor;
 
-
     public float streakDisappearDuration = 3f;
     public float streakShownDuration = 3f;
     public TextMeshProUGUI streakWord;
@@ -62,8 +61,8 @@ public class StreakUIController : MonoBehaviour
     {
         if (isShowingStreak)
         {
-            streakText.fontSize = Mathf.Clamp(streakFontSize + num * 2, streakFontSize, 128);
-            streakText.color = new Color(streakText.color.r, streakText.color.g - ((float)num * 2) / 255, streakText.color.b);
+            streakText.fontSize = Mathf.Clamp(streakFontSize + num * 4, streakFontSize, 128);
+            streakText.color = new Color(streakText.color.r, streakText.color.g - ((float)num * 4) / 255, streakText.color.b);
         }
         else
         {

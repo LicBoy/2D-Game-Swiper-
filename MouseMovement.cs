@@ -175,10 +175,9 @@ public class MouseMovement : MonoBehaviour
         {
             otherProjectileObject.marked = true;
             killedProj = true;
-            GameController.instance.IncreaseKills(1);
             oneSwipeKillsCounter += 1;
+            GameController.instance.IncreaseKills(oneSwipeKillsCounter);
             linerend.widthMultiplier *= oneSwipeKillsCounter;
-
             linerend.widthMultiplier = Mathf.Clamp(linerend.widthMultiplier, curveWidthMultiplayer, curveWidthMultiplayer*3);
             if (oneSwipeKillsCounter > 2)
             {

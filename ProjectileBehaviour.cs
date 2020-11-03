@@ -25,7 +25,7 @@ public class ProjectileBehaviour : MonoBehaviour
         transform.localScale = new Vector3(randomisedScale, randomisedScale, randomisedScale);
         transform.position = new Vector3(randomisedX, spawnY, 0);
 
-        collider = GetComponent<CircleCollider2D>();
+        collider = gameObject.GetComponent<CircleCollider2D>();
 
         rb = GetComponent<Rigidbody2D>();
         rb.velocity = new Vector2(UnityEngine.Random.Range(-4f, 4f), UnityEngine.Random.Range(-2f, 0));
