@@ -15,11 +15,13 @@ public class ChangeWaveUI : MonoBehaviour
     private bool isBonusPanelActive = false;
     private float bonusesTimer = 0f;
     private float bonusesAnimationTime;
+    private ColorBlock disabledColor;
     private GameObject[] curBonuses;
 
     private void Start()
     {
         bonusesAnimationTime = bonusesPanel.gameObject.GetComponent<Animation>().clip.length;
+        disabledColor = bonusPanelButtons[0].GetComponent<Button>().colors;
     }
 
     private void Update()
@@ -53,10 +55,12 @@ public class ChangeWaveUI : MonoBehaviour
         {
             bonusPanelButtons[i].GetComponent<Image>().sprite = curBonuses[i].GetComponent<Bonus>().bonusIcon;
             bonusPanelButtons[i].GetComponent<Button>().interactable = true;
+            bonusPanelButtons[i].GetComponent<Button>().colors = disabledColor;
         }
 
         bonusesPanel.gameObject.GetComponent<Animation>().Play();
     }
+
 
     public void DropBonusOnClick(GameObject whichButtonPressed)
     {
@@ -65,9 +69,19 @@ public class ChangeWaveUI : MonoBehaviour
         {
             if (obj.gameObject.Equals(whichButtonPressed))
             {
+                ColorBlock colBlock = obj.GetComponent<Button>().colors;
+                colBlock.normalColor = colBlock.selectedColor;
+                colBlock.disabledColor = colBlock.selectedColor;
+
                 GameController.instance.GetComponent<BonusGenerator>().DropBonus(curBonuses[i]);
+                obj.GetComponent<Button>().colors = colBlock;
             }
             i++;
         }
+    }
+
+    public void GameOverChanges()
+    {
+        isBonusPanelActive = false;
     }
 }

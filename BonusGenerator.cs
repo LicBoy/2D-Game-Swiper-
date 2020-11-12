@@ -21,11 +21,8 @@ public class BonusGenerator : MonoBehaviour
                 Debug.LogError("Couldn't randomize bonus, check RandomizeBonus() func!");
             }
         }
-        else
-        {
-            Vector3 spawnPos = new Vector3(UnityEngine.Random.Range(spawnPosX[0], spawnPosX[1]), spawnPosY, 0);
-            GameObject.Instantiate(knownBonus, spawnPos, Quaternion.identity);
-        }
+        Vector3 spawnPos = new Vector3(UnityEngine.Random.Range(spawnPosX[0], spawnPosX[1]), spawnPosY, 0);
+        GameObject.Instantiate(knownBonus, spawnPos, Quaternion.identity);
     }
 
     public GameObject RandomizeBonus()

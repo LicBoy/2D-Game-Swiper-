@@ -6,10 +6,10 @@ public class SkyBlocks : MonoBehaviour
     public int health = 25;
     public bool isBreakable = false;
 
-    protected float counter = 0f;
-    protected float bonusDuration;
-    protected bool activated = false;
-    protected Color originalColor;
+    private float counter = 0f;
+    private float bonusDuration;
+    private bool activated = false;
+    private Color originalColor;
     private int lastTouched;
 
     void Start()
@@ -86,5 +86,10 @@ public class SkyBlocks : MonoBehaviour
         health = 25;
         gameObject.GetComponent<SpriteRenderer>().color = originalColor;
         gameObject.SetActive(false);
+    }
+
+    public void GameOverChanges()
+    {
+        activated = false;
     }
 }

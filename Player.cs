@@ -11,8 +11,13 @@ public class Player : MonoBehaviour
     public int highscore;
     public int score;
 
+    public Color fullHealthColor;
+    public Color lowestHealthColor;
+
     private bool gotDamaged = false;
     private float damageCounter = 0f;
+    private Animation animation;
+    private SpriteRenderer spriteRenderer;
 
     public void SavePlayer(bool firstSave = false)
     {
@@ -43,23 +48,16 @@ public class Player : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        animation = GetComponent<Animation>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
 
+        ChangeColorDependOnHP();        //Load current hp and change color depend on it
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (gotDamaged)
-        {
-            DamageBlink(Color.white, Color.red);
-            if (damageCounter > 1f)
-            {
-                gotDamaged = false;
-                damageCounter = 0f;
-            }
 
-            damageCounter += Time.deltaTime;
-        }
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -71,10 +69,22 @@ public class Player : MonoBehaviour
         }
     }
 
+    void ChangeColorDependOnHP()
+    {
+        float redChange = (fullHealthColor.r - lowestHealthColor.r) / 100;
+        float greenChange = (fullHealthColor.g - lowestHealthColor.g) / 100;
+        float blueChange = (fullHealthColor.b - lowestHealthColor.b) / 100;
+
+        animation.Stop();
+        spriteRenderer.color = new Color(
+            (lowestHealthColor.r + health * redChange),
+            (lowestHealthColor.g + health * greenChange),
+            (lowestHealthColor.b + health * blueChange),
+            1);
+    }
+
     void GetDamage(int value)
     {
-        gotDamaged = true;
-        damageCounter = 0f;
 
         if (armor > 0)
         {
@@ -94,6 +104,12 @@ public class Player : MonoBehaviour
         {
             GameController.instance.GameOver();
         }
+
+        if (!animation.isPlaying)
+            animation.Play("CityDamagedAnimation");
+        else if(animation.isPlaying)
+            animation["CityDamagedAnimation"].time = 0;
+      
     }
 
     public void Heal(int val)
@@ -106,12 +122,6 @@ public class Player : MonoBehaviour
     {
         armor = Mathf.Clamp(armor + val, 0, 50);
         print("Added " + val + " armor");
-    }
-
-    public void DamageBlink(Color colorA, Color colorB)
-    {
-        float val = Mathf.PingPong(Time.time * 20, 1);
-        GetComponent<SpriteRenderer>().color = Color.Lerp(colorA, colorB, val);
     }
 
     public void ChangeWave()

@@ -105,7 +105,7 @@ public class MouseMovement : MonoBehaviour
         if (Input.GetMouseButton(0) && counterOfLive < timeToLive)
         {
             //linerend.SetPosition(1, GetMouseVector3());
-            if (counter >= 0.05f) //Time before creating new vertice in Line
+            if (counter >= 0.01f) //Time before creating new vertice in Line
             {
                 linerend.positionCount = ind + 1;
                 Vector3 mousePos = GetMouseVector3();
@@ -244,6 +244,13 @@ public class MouseMovement : MonoBehaviour
             mirrorLine.gameObject.SetActive(true);
             mirrorLineBonusActive = true;
         }
+    }
+
+    public void GameOverChanges()
+    {
+        lineBiggerBonusActive = false;
+        lineDurationBonusActive = false;
+        mirrorLineBonusActive = false;
     }
 
     private Vector3 GetMouseVector3()

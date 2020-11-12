@@ -12,13 +12,14 @@ public class GameController : MonoBehaviour
     private Camera mainCam;
     private float[] bordersX = new float[2] {-2.5f, 2.5f };
     private float generateCounter = 0f;
-    private bool changingLevel = false;
     private float t = 0;
 
     private BonusGenerator bonusGenerator;
+    private ChangeWaveUI changeWaveUI;
 
     public Player player;
     public SkyBlocks[] blocks = new SkyBlocks[2];
+    public GameOverUI gameoverUI;
     public GameObject projectile;
     public GameObject lineRenderer;
     public float coldown = 3f;
@@ -28,7 +29,7 @@ public class GameController : MonoBehaviour
     public int totalProjsKilled = 0;
     public int curAmountOfProjs = 50;
     public int projsToAddPerWave = 10;
-    public int playerScore = 0;
+    public bool changingLevel = false;
 
     // Start is called before the first frame update
     void Start()
@@ -46,12 +47,11 @@ public class GameController : MonoBehaviour
         // при переходе на другую сцену игры
         DontDestroyOnLoad(gameObject);
 
-        StartCoroutine("LoadPlayerData"); //loading player data at the start of the scene
-
         mainCam = Camera.main.GetComponent<Camera>();
         bonusGenerator = GetComponent<BonusGenerator>();
+        changeWaveUI = GetComponent<ChangeWaveUI>();
 
-        print(Screen.width + " " + Screen.height);
+        StartCoroutine("LoadPlayerData"); //loading player data at the start of the scene
     }
 
     // Update is called once per frame
@@ -109,6 +109,10 @@ public class GameController : MonoBehaviour
 
     IEnumerator ChangeWave()
     {
+        ProjectileBehaviour[] remainingProjes = gameObject.GetComponentsInChildren<ProjectileBehaviour>();
+        foreach (ProjectileBehaviour proj in remainingProjes)
+            proj.DestroyProjectile();
+
         changingLevel = true;
         t = 0;
         player.ChangeWave();
@@ -123,8 +127,8 @@ public class GameController : MonoBehaviour
         print("Cur highscore: " + player.highscore + "\nCur MaxWave: " + player.maxWave);
         player.SavePlayer(); //saving player on wave change
 
-        GetComponent<ChangeWaveUI>().StartCoroutine("ShowChangeWaveAnimation", player.wave);
-        GetComponent<ChangeWaveUI>().BonusPanelAppear();
+        changeWaveUI.StartCoroutine("ShowChangeWaveAnimation", player.wave);
+        changeWaveUI.BonusPanelAppear();
         yield return new WaitForSeconds(changeWavePauseTime);
         changeColorTime += 5;
 
@@ -136,6 +140,9 @@ public class GameController : MonoBehaviour
 
     IEnumerator LoadPlayerData()
     {
+        projesKilled = 0;
+        totalProjsKilled = 0;
+
         print("Loading player from " + Application.persistentDataPath);
         player.LoadPlayer();
         for(int i=1; i<=player.wave; i++)
@@ -147,7 +154,7 @@ public class GameController : MonoBehaviour
             changeColorTime += 5;
         }
 
-        GetComponent<ChangeWaveUI>().StartCoroutine("ShowChangeWaveAnimation", player.wave);
+        changeWaveUI.StartCoroutine("ShowChangeWaveAnimation", player.wave);
         changingLevel = true;
         yield return new WaitForSeconds(changeWavePauseTime);
         changingLevel = false;
@@ -155,10 +162,26 @@ public class GameController : MonoBehaviour
 
     public void GameOver()
     {
+        gameoverUI.scoreWord.text = "Score";
+
         if (player.score > player.highscore)
+        {
             player.highscore = player.score;
+            gameoverUI.scoreWord.text = "New highscore!";
+        }
+            
         if (player.wave > player.maxWave)
             player.maxWave = player.wave;
+
+        lineRenderer.GetComponent<MouseMovement>().GameOverChanges();
+        for (int i = 0; i < blocks.Length; i++)
+            blocks[i].GameOverChanges();
+        changeWaveUI.GameOverChanges();
+
+        gameoverUI.panel.SetActive(true);
+        gameoverUI.scoreText.text = player.score.ToString();
+        gameoverUI.ShowGameOverMenu();
+
         player.health = 100;
         player.armor = 0;
         player.wave = 1;

@@ -14,8 +14,17 @@ public class Bonus : MonoBehaviour
     {
         //Do something
         BonusPreviewScript bonusPreview = GameObject.FindGameObjectWithTag("BonusPreviewText").GetComponent<BonusPreviewScript>();
-        bonusPreview.ShowBonusPreview(bonusActivationPhrase);
-        Destroy(gameObject, 0.5f);
+
+        if (bonusPreview == null)
+        {
+            print("Bonus preveiw obj wasn't found");
+        }
+        else
+        {
+            print("Bonus preview activated by " + bonusName);
+            bonusPreview.ShowBonusPreview(bonusActivationPhrase);
+            Destroy(gameObject, 0.5f);
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D other)

@@ -16,6 +16,14 @@ public class WallsScript : MonoBehaviour
         
     }
 
+    void DefineResolutionPosition()
+    {
+        float screenWidth = Screen.width;
+        float screenHeight = Screen.height;
+
+
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         if(other.GetComponent<ProjectileBehaviour>())
