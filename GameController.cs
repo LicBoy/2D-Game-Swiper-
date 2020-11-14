@@ -3,7 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SocialPlatforms.Impl;
+using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour
 {
@@ -13,6 +13,7 @@ public class GameController : MonoBehaviour
     private float[] bordersX = new float[2] {-2.5f, 2.5f };
     private float generateCounter = 0f;
     private float t = 0;
+    private int bonusDoubler = 1;
 
     private BonusGenerator bonusGenerator;
     private ChangeWaveUI changeWaveUI;
@@ -43,32 +44,23 @@ public class GameController : MonoBehaviour
             Destroy(gameObject); // Удаляем объект
         }
 
-        // Теперь нам нужно указать, чтобы объект не уничтожался
-        // при переходе на другую сцену игры
-        DontDestroyOnLoad(gameObject);
-
         mainCam = Camera.main.GetComponent<Camera>();
         bonusGenerator = GetComponent<BonusGenerator>();
         changeWaveUI = GetComponent<ChangeWaveUI>();
-
+        
         StartCoroutine("LoadPlayerData"); //loading player data at the start of the scene
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (projesKilled >= curAmountOfProjs)
-        {
-            StartCoroutine(ChangeWave());
-        }
-
         if (!changingLevel)
         {
             ChangeCamBackgroundByTime(Color.grey + new Color(0.3f, 0.3f, 0.3f, 0), Color.grey - new Color(0.4f, 0.4f, 0.4f, 0), changeColorTime);
             GenerateProjectiles();
         }
 
-        else if(changingLevel)
+        else if (changingLevel)
         {
             ChangeCamBackgroundByTime(Color.grey - new Color(0.4f, 0.4f, 0.4f, 0), Color.grey + new Color(0.3f, 0.3f, 0.3f, 0), changeWavePauseTime);
         }
@@ -98,20 +90,29 @@ public class GameController : MonoBehaviour
     {
         projesKilled += 1;
         totalProjsKilled += 1;
+        if (projesKilled >= curAmountOfProjs)
+        {
+            StartCoroutine(ChangeWave());
+        }
         //num is always 1
         int countedScore = (swipeCounter > 2) ? 5 * swipeCounter : 10;
-        player.ChangeScore(countedScore);
+        player.ChangeScore(countedScore * bonusDoubler);
         if(totalProjsKilled % 20 == 0)
         {
             bonusGenerator.DropBonus();
         }
     }
 
+    IEnumerator DoublePointsBonus(float time)
+    {
+        bonusDoubler = 2;
+        yield return new WaitForSeconds(time);
+        bonusDoubler = 1;
+    }
+
     IEnumerator ChangeWave()
     {
-        ProjectileBehaviour[] remainingProjes = gameObject.GetComponentsInChildren<ProjectileBehaviour>();
-        foreach (ProjectileBehaviour proj in remainingProjes)
-            proj.DestroyProjectile();
+        DestroyAllRemainingProjectiles();
 
         changingLevel = true;
         t = 0;
@@ -145,6 +146,7 @@ public class GameController : MonoBehaviour
 
         print("Loading player from " + Application.persistentDataPath);
         player.LoadPlayer();
+        player.ChangeColorDependOnHP();
         for(int i=1; i<=player.wave; i++)
         {
             if (i == 1)
@@ -162,6 +164,11 @@ public class GameController : MonoBehaviour
 
     public void GameOver()
     {
+        DestroyAllRemainingProjectiles();
+
+        projesKilled = 0;
+        totalProjsKilled = 0;
+
         gameoverUI.scoreWord.text = "Score";
 
         if (player.score > player.highscore)
@@ -178,7 +185,7 @@ public class GameController : MonoBehaviour
             blocks[i].GameOverChanges();
         changeWaveUI.GameOverChanges();
 
-        gameoverUI.panel.SetActive(true);
+        gameoverUI.gameObject.SetActive(true);
         gameoverUI.scoreText.text = player.score.ToString();
         gameoverUI.ShowGameOverMenu();
 
@@ -189,5 +196,12 @@ public class GameController : MonoBehaviour
         player.SavePlayer();
         print("GAME OVER");
         changingLevel = true;
+    }
+
+    public void DestroyAllRemainingProjectiles()
+    {
+        ProjectileBehaviour[] remainingProjes = gameObject.GetComponentsInChildren<ProjectileBehaviour>();
+        foreach (ProjectileBehaviour proj in remainingProjes)
+            proj.DestroyProjectile();
     }
 }

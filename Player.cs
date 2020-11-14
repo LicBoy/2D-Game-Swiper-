@@ -10,12 +10,13 @@ public class Player : MonoBehaviour
     public int maxWave;
     public int highscore;
     public int score;
+    public string gameLanguage;
+    public bool isDarkTheme;
+    public bool soundOn;
 
     public Color fullHealthColor;
     public Color lowestHealthColor;
 
-    private bool gotDamaged = false;
-    private float damageCounter = 0f;
     private Animation animation;
     private SpriteRenderer spriteRenderer;
 
@@ -50,8 +51,6 @@ public class Player : MonoBehaviour
     {
         animation = GetComponent<Animation>();
         spriteRenderer = GetComponent<SpriteRenderer>();
-
-        ChangeColorDependOnHP();        //Load current hp and change color depend on it
     }
 
     // Update is called once per frame
@@ -69,7 +68,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    void ChangeColorDependOnHP()
+    public void ChangeColorDependOnHP()
     {
         float redChange = (fullHealthColor.r - lowestHealthColor.r) / 100;
         float greenChange = (fullHealthColor.g - lowestHealthColor.g) / 100;
