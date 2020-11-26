@@ -9,4 +9,5 @@
         GameController.instance.player.GiveArmor(amountOfArmor);
         base.ActivateBonus();
     }
+
 }

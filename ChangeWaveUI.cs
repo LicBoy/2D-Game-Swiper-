@@ -12,6 +12,10 @@ public class ChangeWaveUI : MonoBehaviour
     public GameObject bonusesPanel;
     public GameObject[] bonusPanelButtons;
 
+    public GameObject bonusPreviewPanel;
+    public Image bonusPreviewImage;
+    public TextMeshProUGUI bonusPreviewText;
+
     private bool isBonusPanelActive = false;
     private float bonusesTimer = 0f;
     private float bonusesAnimationTime;
@@ -31,6 +35,7 @@ public class ChangeWaveUI : MonoBehaviour
             bonusCounter.text = ((int)Mathf.Round(bonusesAnimationTime - bonusesTimer)).ToString();
             if(bonusesTimer >= bonusesAnimationTime)
             {
+                bonusPreviewPanel.SetActive(false);
                 isBonusPanelActive = false;
                 bonusesTimer = 0f;
             }
@@ -73,8 +78,12 @@ public class ChangeWaveUI : MonoBehaviour
                 colBlock.normalColor = colBlock.selectedColor;
                 colBlock.disabledColor = colBlock.selectedColor;
 
-                GameController.instance.GetComponent<BonusGenerator>().DropBonus(curBonuses[i]);
+                GameController.instance.GetComponent<BonusGenerator>().DropBonusAmountOfDrops(curBonuses[i]);
                 obj.GetComponent<Button>().colors = colBlock;
+
+                //bonus preview part
+                bonusPreviewImage.sprite = curBonuses[i].GetComponent<Bonus>().bonusIcon;
+                bonusPreviewText.text = curBonuses[i].GetComponent<Bonus>().bonusPreviewText;
             }
             i++;
         }

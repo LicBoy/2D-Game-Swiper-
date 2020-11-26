@@ -36,13 +36,15 @@ public class MirrorLineColliderScript : MonoBehaviour
         ProjectileBehaviour otherProjectileObject = other.GetComponent<ProjectileBehaviour>();
         if (otherProjectileObject != null)
         {
-            otherProjectileObject.marked = true;
-            GameController.instance.lineRenderer.gameObject.GetComponent<MouseMovement>().oneSwipeKillsCounter += 1;
-            GameController.instance.IncreaseKills(1);
-
-            if (GameController.instance.lineRenderer.gameObject.GetComponent<MouseMovement>().oneSwipeKillsCounter > 2)
+            if(otherProjectileObject.GetDamage(1))
             {
-                streakController.ShowStreak(GameController.instance.lineRenderer.gameObject.GetComponent<MouseMovement>().oneSwipeKillsCounter);
+                GameController.instance.lineRenderer.gameObject.GetComponent<MouseMovement>().oneSwipeKillsCounter += 1;
+                GameController.instance.IncreaseKills(1);
+
+                if (GameController.instance.lineRenderer.gameObject.GetComponent<MouseMovement>().oneSwipeKillsCounter > 2)
+                {
+                    streakController.ShowStreak(GameController.instance.lineRenderer.gameObject.GetComponent<MouseMovement>().oneSwipeKillsCounter);
+                }
             }
         }
     }

@@ -1,10 +1,9 @@
-﻿public class InfiniteLineBonus : Bonus
+﻿public class InfiniteLineBonus : BonusWithDuration
 {
-    public float bonusDuration = 10;
-
     public override void ActivateBonus()
     {
-        GameController.instance.lineRenderer.GetComponent<MouseMovement>().ChangeLineDuration(bonusDuration, true);
+        GameController.instance.lineRenderer.GetComponent<MouseMovement>().ChangeLineDuration(duration, true);
+        GameController.instance.lineRenderer.GetComponent<MouseMovement>().MakeLineBigger(duration);
         base.ActivateBonus();
     }
 }

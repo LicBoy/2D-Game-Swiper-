@@ -16,6 +16,10 @@ public class MouseMovement : MonoBehaviour
     private float lineBiggerBonusDuration;
     private float counterMirrorLineBonus = 0;
     private float mirrorLineBonusDuration;
+    private float counterVampirismBonus = 0;
+    private float vampirismBonusDuration;
+    private int vampirismHealAmount;
+    private int lineDamage = 1;
     private float counterOfLive = 0f;
     private float curveWidthMultiplayer;
     private float defaultTimeToLive;
@@ -24,6 +28,7 @@ public class MouseMovement : MonoBehaviour
     private bool lineDurationBonusActive = false;
     private bool lineBiggerBonusActive = false;
     private bool mirrorLineBonusActive = false;
+    private bool vampirismBonusActive = false;
     private Gradient currentLineGradient;
     private Gradient defaultLineGradient;
 
@@ -68,6 +73,7 @@ public class MouseMovement : MonoBehaviour
         {
             if (counterOfLineBiggerBonus > lineBiggerBonusDuration)
             {
+                lineDamage = 1;
                 lineBiggerBonusActive = false;
                 counterOfLineBiggerBonus = 0;
                 curveWidthMultiplayer /= 2;
@@ -75,14 +81,13 @@ public class MouseMovement : MonoBehaviour
                 linerend.colorGradient = defaultLineGradient;
                 currentLineGradient = defaultLineGradient;
                 mirrorLine.GetComponent<MirrorLineColliderScript>().ChangeColorToDefault(lineBiggerBonusActive);
-                print("line bigger end");
             }
             counterOfLineBiggerBonus += Time.deltaTime;
         }
 
         if (mirrorLineBonusActive)
         {
-            if (counterMirrorLineBonus >= 27)
+            if (counterMirrorLineBonus > mirrorLineBonusDuration-3)
             {
                 mirrorLine.GetComponent<MirrorLineColliderScript>().isBlinking = true;
                 if (counterMirrorLineBonus > mirrorLineBonusDuration)
@@ -94,6 +99,16 @@ public class MouseMovement : MonoBehaviour
                 }
             }
             counterMirrorLineBonus += Time.deltaTime;
+        }
+
+        if (vampirismBonusActive)
+        {
+            if (counterVampirismBonus > vampirismBonusDuration)
+            {
+                vampirismBonusActive = false;
+                counterVampirismBonus = 0;
+            }
+            counterVampirismBonus += Time.deltaTime;
         }
 
         DrawLine(mirrorLineBonusActive);
@@ -173,19 +188,25 @@ public class MouseMovement : MonoBehaviour
         ProjectileBehaviour otherProjectileObject = other.GetComponent<ProjectileBehaviour>();
         if (otherProjectileObject != null)
         {
-            otherProjectileObject.marked = true;
-            killedProj = true;
-            oneSwipeKillsCounter += 1;
-            GameController.instance.IncreaseKills(oneSwipeKillsCounter);
-            linerend.widthMultiplier *= oneSwipeKillsCounter;
-            linerend.widthMultiplier = Mathf.Clamp(linerend.widthMultiplier, curveWidthMultiplayer, curveWidthMultiplayer*3);
-            if (oneSwipeKillsCounter > 2)
+            killedProj = otherProjectileObject.GetDamage(lineDamage);
+            if(killedProj)
             {
-                StreakUIController.ShowStreak(oneSwipeKillsCounter);
+                oneSwipeKillsCounter += 1;
+                GameController.instance.IncreaseKills(oneSwipeKillsCounter);
+                linerend.widthMultiplier *= oneSwipeKillsCounter;
+                linerend.widthMultiplier = Mathf.Clamp(linerend.widthMultiplier, curveWidthMultiplayer, curveWidthMultiplayer * 3);
+                if (oneSwipeKillsCounter > 2)
+                {
+                    StreakUIController.ShowStreak(oneSwipeKillsCounter);
+                    if (vampirismBonusActive)
+                        GameController.instance.player.Heal(vampirismHealAmount);
+                        
+                }
             }
         }
     }
 
+    //Will be deleted
     void GunAnimation(Collider2D proj)
     {
         gun.transform.position = linerend.GetPosition(0);
@@ -213,6 +234,7 @@ public class MouseMovement : MonoBehaviour
 
     public void MakeLineBigger(float duration)
     {
+        lineDamage = 10;
         lineBiggerBonusDuration = duration;
         if (lineBiggerBonusActive)
             counterOfLineBiggerBonus = 0;
@@ -221,7 +243,7 @@ public class MouseMovement : MonoBehaviour
         {
             print("Line bigger started");
             curveWidthMultiplayer *= 2;
-            edgeCollider.edgeRadius += 0.5f;
+            edgeCollider.edgeRadius += 0.3f;
             lineBiggerBonusActive = true;
             currentLineGradient = bigLineGradient;
             linerend.colorGradient = bigLineGradient;
@@ -243,6 +265,20 @@ public class MouseMovement : MonoBehaviour
             mirrorLine.GetComponent<EdgeCollider2D>().points = empty;
             mirrorLine.gameObject.SetActive(true);
             mirrorLineBonusActive = true;
+        }
+    }
+
+    public void ActivateVampirism(float duration, int healAmount)
+    {
+        vampirismHealAmount = healAmount;
+        vampirismBonusDuration = duration;
+        if (vampirismBonusActive)
+            counterOfLineBiggerBonus = 0;
+
+        else
+        {
+            print("Vampirism started");
+            vampirismBonusActive = true;
         }
     }
 

@@ -5,16 +5,24 @@ using UnityEngine;
 
 public class Bonus : MonoBehaviour
 {
+    public string[] namesTranslations = new string[2];
     public string bonusName;
+
+    public string[] activationsTranslations = new string[2];
     public string bonusActivationPhrase;
+
+    public string[] previewTranslations = new string[2];
+    public string bonusPreviewText;
+    
     public float chance;
     public Sprite bonusIcon;
+    private BonusPreviewScript bonusPreview;
 
     public virtual void ActivateBonus()
     {
-        //Do something
-        BonusPreviewScript bonusPreview = GameObject.FindGameObjectWithTag("BonusPreviewText").GetComponent<BonusPreviewScript>();
+        bonusPreview = GameObject.FindGameObjectWithTag("BonusPreviewText").GetComponent<BonusPreviewScript>();
 
+        //Do something
         if (bonusPreview == null)
         {
             print("Bonus preveiw obj wasn't found");
@@ -33,5 +41,10 @@ public class Bonus : MonoBehaviour
         {
             ActivateBonus();
         }
+    }
+
+    public virtual bool HasDuration()
+    {
+        return false;
     }
 }

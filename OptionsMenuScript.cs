@@ -36,6 +36,11 @@ public class OptionsMenuScript : MonoBehaviour
             gameObject.SetActive(true);
             animation.Play("OptionsAppearAnim");
         }
+        else
+        {
+            if(!animation.isPlaying)
+                animation.Play("OptionsDisappearAnim");
+        }
     }
 
     public void EndDrag()

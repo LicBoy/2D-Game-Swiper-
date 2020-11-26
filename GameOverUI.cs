@@ -16,7 +16,6 @@ public class GameOverUI : MonoBehaviour
     void Start()
     {
         anim = GetComponent<Animation>();
-        gameObject.SetActive(false);
     }
 
     public void ShowGameOverMenu()
@@ -32,7 +31,6 @@ public class GameOverUI : MonoBehaviour
     public void SetMenuNotActive()
     {
         anim.Stop();
-        gameObject.SetActive(false);
     }
 
     public void RestartGame()

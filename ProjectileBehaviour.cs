@@ -7,10 +7,10 @@ public class ProjectileBehaviour : MonoBehaviour
     private float spawnY = 6;
     private Rigidbody2D rb;
     private CircleCollider2D collider;
+    private Animation animation;
 
-    public bool marked = false;
     public float gravScale = 0.5f;
-    public float dieDelay = 0.1f;
+    public int health = 1;
     public int damage = 5;
 
     public GameObject shortExplosion;
@@ -19,41 +19,46 @@ public class ProjectileBehaviour : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        float randomisedScale = UnityEngine.Random.Range(0.4f, 0.9f);
+        float randomisedScale = UnityEngine.Random.Range(0.75f, 1.25f);
         float randomisedX = UnityEngine.Random.Range(-2.5f, 2.5f);
 
         transform.localScale = new Vector3(randomisedScale, randomisedScale, randomisedScale);
         transform.position = new Vector3(randomisedX, spawnY, 0);
 
-        collider = gameObject.GetComponent<CircleCollider2D>();
+        collider = GetComponent<CircleCollider2D>();
+        animation = GetComponent<Animation>();
 
         rb = GetComponent<Rigidbody2D>();
         rb.velocity = new Vector2(UnityEngine.Random.Range(-4f, 4f), UnityEngine.Random.Range(-2f, 0));
         rb.gravityScale = gravScale * gameObject.transform.localScale.x;
-
     }
 
     // Update is called once per frame
     void Update()
     {
         transform.Rotate(0, 0, 50f * Time.deltaTime);
-
-        if (marked)
-        {
-            collider.enabled = false;
-            FastBlink(Color.red, Color.black);
-            dieDelay -= Time.deltaTime;
-            if(dieDelay <= 0)
-            {
-                DestroyProjectile();
-            }
-        }
     }
 
-    void FastBlink(Color colorA, Color colorB)
+    public bool GetDamage(int amount)
     {
-        float val = Mathf.PingPong(Time.time * 20, 1);
-        GetComponent<SpriteRenderer>().color = Color.Lerp(colorA, colorB, val);
+        health -= amount;
+        if(health > 0)
+        {
+            animation.PlayQueued("ProjectileGotDamageAnim");
+            animation.PlayQueued("ProjectileReturnColorAnim");
+        }
+        if (health <= 0)
+        {
+            collider.enabled = false;
+            animation.Play("ProjectileKilledAnim");
+        }
+        return health <= 0;
+    } //Mouse swipe deals 1 damage to proj, so return bool to determine if proj was killed. Neeeded for MouseMovement and MirrorLine scripts
+
+
+    public void ReturnOriginalColor()
+    {
+        GetComponent<SpriteRenderer>().color = GameController.instance.GetComponent<ProjectilesGenerator>().GetDefendedAsteroidColor();
     }
 
     public void DestroyProjectile()

@@ -1,10 +1,8 @@
-﻿public class DoublePointsBonus : Bonus
+﻿public class DoublePointsBonus : BonusWithDuration
 {
-    public float doublePointsBonusDuration = 30f;
-
     public override void ActivateBonus()
     {
-        GameController.instance.StartCoroutine("DoublePointsBonus", doublePointsBonusDuration);
+        GameController.instance.StartCoroutine("DoublePointsBonus", duration);
         base.ActivateBonus();
     }
 }

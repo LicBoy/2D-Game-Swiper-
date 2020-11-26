@@ -13,6 +13,8 @@ public class StreakUIController : MonoBehaviour
     private Color originalStreakColor;
     private Color currentStreakColor;
     private Color originalStreakWordColor;
+    private int lastSwipeKillAmount;
+
 
     public float streakDisappearDuration = 3f;
     public float streakShownDuration = 3f;
@@ -59,7 +61,7 @@ public class StreakUIController : MonoBehaviour
 
     public void ShowStreak(int num)
     {
-        if (isShowingStreak)
+        if (isShowingStreak && num > lastSwipeKillAmount)
         {
             streakText.fontSize = Mathf.Clamp(streakFontSize + num * 4, streakFontSize, 128);
             streakText.color = new Color(streakText.color.r, streakText.color.g - ((float)num * 4) / 255, streakText.color.b);
@@ -79,6 +81,7 @@ public class StreakUIController : MonoBehaviour
         streakWord.color = originalStreakWordColor;
         streakWord.enabled = true; streakText.enabled = true;
 
+        lastSwipeKillAmount = num;
         counter = 0f;
         t = 0f;
     }
@@ -89,6 +92,6 @@ public class StreakUIController : MonoBehaviour
         t += Time.deltaTime / streakDisappearDuration;
         streakWord.color = Color.Lerp(originalStreakWordColor, new Color(originalStreakWordColor.r, originalStreakWordColor.g, originalStreakWordColor.b, 0), val);
         streakText.color = Color.Lerp(currentStreakColor, new Color(currentStreakColor.r, currentStreakColor.g, currentStreakColor.b, 0), val);
-        return t > 1;
+        return t > 0.99;
     }
 }

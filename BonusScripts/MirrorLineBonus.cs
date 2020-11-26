@@ -1,7 +1,5 @@
-﻿public class MirrorLineBonus : Bonus
+﻿public class MirrorLineBonus : BonusWithDuration
 {
-    public float duration;
-
     public override void ActivateBonus()
     {
         GameController.instance.lineRenderer.GetComponent<MouseMovement>().CreateMirrorLine(duration);

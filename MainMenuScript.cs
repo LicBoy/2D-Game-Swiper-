@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
 
 public class MainMenuScript : MonoBehaviour
 {
@@ -24,15 +25,27 @@ public class MainMenuScript : MonoBehaviour
     public Toggle themeToggle;
     public Toggle soundToggle;
 
+    public TextMeshProUGUI highscoreORWaveWord;
+    public TextMeshProUGUI highscoreORWaveNumber;
+
+    private int highscore;
+    private int maxWave;
+
     void Start()
     {
+        //Loading player to get highscore
+        Player data = new Player();
+        data.LoadPlayer();
+        highscore = data.highscore;
+        maxWave = data.maxWave;
+        
         CheckPrefs();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void HighscoreAndWaveControl(bool isHighscoreNow, string highscoreText, string wavesText)
     {
-        
+        highscoreORWaveWord.text = isHighscoreNow ? highscoreText : wavesText;
+        highscoreORWaveNumber.text = isHighscoreNow ? highscore.ToString() : maxWave.ToString();
     }
 
     void CheckPrefs()
@@ -89,7 +102,7 @@ public class MainMenuScript : MonoBehaviour
         //check if buttonName is correct
         if (buttonName.name != SystemLanguage.Russian.ToString() && buttonName.name != SystemLanguage.English.ToString())
         {
-            Debug.LogError("Language names are not corrrect! Got " + buttonName.name + " Needed " + SystemLanguage.Russian.ToString() + " or " + SystemLanguage.English.ToString());
+            Debug.LogError("Language names are not correct! Got " + buttonName.name + " Needed " + SystemLanguage.Russian.ToString() + " or " + SystemLanguage.English.ToString());
             return;
         }
            

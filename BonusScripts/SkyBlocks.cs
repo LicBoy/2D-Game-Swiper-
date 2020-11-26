@@ -5,16 +5,19 @@ public class SkyBlocks : MonoBehaviour
 {
     public int health = 25;
     public bool isBreakable = false;
+    public GameObject explosionAnim;
+    public Color skyblocksStrongColor;
+    public Color skyblocksWeakColor;
 
     private float counter = 0f;
     private float bonusDuration;
     private bool activated = false;
     private Color originalColor;
     private int lastTouched;
+    private int curWaveHealth = 25;
 
     void Start()
     {
-        originalColor = gameObject.GetComponent<SpriteRenderer>().color;
         gameObject.SetActive(false);
     }
 
@@ -33,7 +36,7 @@ public class SkyBlocks : MonoBehaviour
                 activated = false;
                 health = 25;
                 gameObject.GetComponent<SpriteRenderer>().color = originalColor;
-                gameObject.SetActive(false);
+                GetComponentInParent<SkyBlocksAnimationsScript>().PlayDisappearAnimation();
             }
         }
     }
@@ -41,15 +44,17 @@ public class SkyBlocks : MonoBehaviour
     public void ActivateBlocks(float duration, bool isBreak)
     {
         isBreakable = isBreak;
+        ApplyCorrectColor();
         bonusDuration = duration;
         if (activated)
         {
-            gameObject.SetActive(true);
             counter = 0;
+            GetComponentInParent<SkyBlocksAnimationsScript>().RenewBonusTimeAnimation();
         }
             
         else
         {
+            GetComponentInParent<SkyBlocksAnimationsScript>().PlayAppearIdleAnimation();
             activated = true;
             gameObject.SetActive(true);
         }
@@ -77,19 +82,38 @@ public class SkyBlocks : MonoBehaviour
     public void GetDamage(int val)
     {
         health -= val;
+        FastBlink(Color.red, Color.clear);
+        gameObject.GetComponent<SpriteRenderer>().color = originalColor;
         if (health <= 0)
             DestroyBlock();
     }
 
     public void DestroyBlock()
     {
-        health = 25;
+        health = curWaveHealth;
         gameObject.GetComponent<SpriteRenderer>().color = originalColor;
+        GameObject explodeObj = Instantiate(explosionAnim, transform.position, Quaternion.identity);
+        Destroy(explodeObj, 3f);
         gameObject.SetActive(false);
+        
+    }
+
+    public void ApplyCorrectColor()
+    {
+        originalColor = isBreakable ? skyblocksWeakColor : skyblocksStrongColor;
+        GetComponent<SpriteRenderer>().color = originalColor;
+    }
+
+    public void CalculateAmountOfHealth(int curWave)
+    {
+        curWaveHealth = curWaveHealth + curWave / 2 * 5;
+        health = curWaveHealth;
     }
 
     public void GameOverChanges()
     {
+        curWaveHealth = 25;
+        health = curWaveHealth;
         activated = false;
     }
 }

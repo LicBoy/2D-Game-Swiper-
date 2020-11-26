@@ -1,9 +1,7 @@
 ﻿using System.Drawing;
 
-public class LineBiggerBonus : Bonus
+public class LineBiggerBonus : BonusWithDuration
 {
-    public float duration = 30;
-
     public override void ActivateBonus()
     {
         GameController.instance.lineRenderer.GetComponent<MouseMovement>().MakeLineBigger(duration);

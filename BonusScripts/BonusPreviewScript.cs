@@ -16,7 +16,15 @@ public class BonusPreviewScript : MonoBehaviour
 
     public void ShowBonusPreview(string bonusText)
     {
-        previewText.text = bonusText;
-        anim.Play();
+        if(anim.isPlaying)
+        {
+            anim["BonusPreviewAnim"].time = 0;
+            previewText.text += "\n" + bonusText;
+        }
+        else
+        {
+            previewText.text = bonusText;
+            anim.Play();
+        } 
     }
 }
