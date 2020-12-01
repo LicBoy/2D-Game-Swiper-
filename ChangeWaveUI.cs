@@ -10,13 +10,11 @@ public class ChangeWaveUI : MonoBehaviour
     public TextMeshProUGUI integerUI;
     public TextMeshProUGUI bonusCounter;
     public GameObject bonusesPanel;
-    public GameObject[] bonusPanelButtons;
-
-    public GameObject bonusPreviewPanel;
-    public Image bonusPreviewImage;
-    public TextMeshProUGUI bonusPreviewText;
+    public Button[] bonusPanelButtons;
+    public TextMeshProUGUI[] bonusButtonsText;
 
     private bool isBonusPanelActive = false;
+    private int curWave;
     private float bonusesTimer = 0f;
     private float bonusesAnimationTime;
     private ColorBlock disabledColor;
@@ -24,7 +22,6 @@ public class ChangeWaveUI : MonoBehaviour
 
     private void Start()
     {
-        bonusesAnimationTime = bonusesPanel.gameObject.GetComponent<Animation>().clip.length;
         disabledColor = bonusPanelButtons[0].GetComponent<Button>().colors;
     }
 
@@ -32,12 +29,12 @@ public class ChangeWaveUI : MonoBehaviour
     {
         if(isBonusPanelActive)
         {
-            bonusCounter.text = ((int)Mathf.Round(bonusesAnimationTime - bonusesTimer)).ToString();
+            bonusCounter.text = (bonusesAnimationTime - bonusesTimer).ToString("0");
             if(bonusesTimer >= bonusesAnimationTime)
             {
-                bonusPreviewPanel.SetActive(false);
                 isBonusPanelActive = false;
                 bonusesTimer = 0f;
+                BonusPanelClose(curWave);
             }
             bonusesTimer += Time.deltaTime;
         }
@@ -45,48 +42,57 @@ public class ChangeWaveUI : MonoBehaviour
 
     public IEnumerator ShowChangeWaveAnimation(int wave)
     {
+        yield return new WaitForSeconds(2f);
         integerUI.text = wave.ToString();
-        yield return new WaitForSeconds(2);
         textUI.gameObject.GetComponent<Animation>().Play();
         integerUI.gameObject.GetComponent<Animation>().Play();
+        yield return new WaitForSeconds(textUI.gameObject.GetComponent<Animation>().clip.length);
+        bonusesTimer = 0f;
+        GameController.instance.changingLevel = false;
     }
 
-    public void BonusPanelAppear()
+    public IEnumerator BonusPanelAppear(int wave)
     {
-        isBonusPanelActive = true;
+        bonusesAnimationTime = 9f;
+        curWave = wave;
+        GameController.instance.changingLevel = true;
+        yield return new WaitForSeconds(2f);
+        GameController.instance.backgroundController.BackgroundDisappear();
 
         curBonuses = GameController.instance.GetComponent<BonusGenerator>().RandomBonusPanel();
-        for(int i=0; i<3; i++)
+        for (int i = 0; i < 3; i++)
         {
             bonusPanelButtons[i].GetComponent<Image>().sprite = curBonuses[i].GetComponent<Bonus>().bonusIcon;
             bonusPanelButtons[i].GetComponent<Button>().interactable = true;
             bonusPanelButtons[i].GetComponent<Button>().colors = disabledColor;
+            bonusButtonsText[i].text = curBonuses[i].GetComponent<Bonus>().bonusPreviewText;
         }
 
-        bonusesPanel.gameObject.GetComponent<Animation>().Play();
+        bonusesPanel.GetComponent<Animation>().Play("BonusPanelAppearAnim");
+        yield return new WaitForSeconds(bonusesPanel.GetComponent<Animation>().GetClip("BonusPanelAppearAnim").length);
+        bonusesPanel.GetComponent<Animation>().Play("BonusPanelIdleAnim");
+        isBonusPanelActive = true;
     }
 
-
-    public void DropBonusOnClick(GameObject whichButtonPressed)
+    public void BonusPanelClose(int wave)
     {
-        int i = 0;
-        foreach(GameObject obj in bonusPanelButtons)
-        {
-            if (obj.gameObject.Equals(whichButtonPressed))
-            {
-                ColorBlock colBlock = obj.GetComponent<Button>().colors;
-                colBlock.normalColor = colBlock.selectedColor;
-                colBlock.disabledColor = colBlock.selectedColor;
+        isBonusPanelActive = false;
+        if (GameController.instance.backgroundController != null)
+            GameController.instance.backgroundController.StartCoroutine("BackgroundAppear");
+        bonusesPanel.GetComponent<Animation>().Play("BonusPanelDisappearAnim");
+        StartCoroutine("ShowChangeWaveAnimation", curWave);
+    }
 
-                GameController.instance.GetComponent<BonusGenerator>().DropBonusAmountOfDrops(curBonuses[i]);
-                obj.GetComponent<Button>().colors = colBlock;
+    public void DropBonusOnClick(int buttonNumInt)
+    {
+        ColorBlock colBlock = bonusPanelButtons[buttonNumInt].GetComponent<Button>().colors;
+        colBlock.normalColor = colBlock.selectedColor;
+        colBlock.disabledColor = colBlock.selectedColor;
 
-                //bonus preview part
-                bonusPreviewImage.sprite = curBonuses[i].GetComponent<Bonus>().bonusIcon;
-                bonusPreviewText.text = curBonuses[i].GetComponent<Bonus>().bonusPreviewText;
-            }
-            i++;
-        }
+        GameController.instance.GetComponent<BonusGenerator>().DropBonusAmountOfDrops(curBonuses[buttonNumInt]);
+        bonusPanelButtons[buttonNumInt].GetComponent<Button>().colors = colBlock;
+
+        BonusPanelClose(curWave);
     }
 
     public void GameOverChanges()

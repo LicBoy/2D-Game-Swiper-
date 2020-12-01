@@ -18,6 +18,7 @@ public class MainMenuScript : MonoBehaviour
     public const string DarkTheme = "DarkTheme";
     public const string SoundOn = "SoundOn";
 
+    public Canvas canvas;
     public GameObject languagesPanel;
     public Sprite rusSprite;
     public Sprite engSprite;
@@ -38,7 +39,7 @@ public class MainMenuScript : MonoBehaviour
         data.LoadPlayer();
         highscore = data.highscore;
         maxWave = data.maxWave;
-        
+
         CheckPrefs();
     }
 

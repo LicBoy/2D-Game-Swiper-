@@ -10,7 +10,7 @@ public class BonusGenerator : MonoBehaviour
     public int amountOfDrops = 1;
     public float[] bonusChancesOriginal;
 
-    private float[] spawnPosX = new float[2] { -2.5f, 2.5f };
+    private float[] spawnPosX = new float[2] { -1.5f, 1.5f };
     private float spawnPosY = 5.5f;
 
     private void Start()

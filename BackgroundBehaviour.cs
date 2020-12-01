@@ -21,12 +21,11 @@ public class BackgroundBehaviour : MonoBehaviour
     private string secondaryAnimFadeName;
     private string secondaryAnimAppearName;
 
-    // Start is called before the first frame update
-    void Awake()
+    public void SetTheme()
     {
-        isDarkTheme = PlayerPrefs.GetInt(MainMenuScript.DarkTheme) == 1 ? true: false;
+        isDarkTheme = PlayerPrefs.GetInt(MainMenuScript.DarkTheme) == 1 ? true : false;
 
-        if(isDarkTheme)
+        if (isDarkTheme)
         {
             primaryBackground = darkBackground; secondaryBackground = brightBackground;
             primaryAnimAppearName = "DarkThemeAppearAnim";
@@ -50,10 +49,8 @@ public class BackgroundBehaviour : MonoBehaviour
             brightBackground.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1);
             darkBackground.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1);
         }
-        primaryBackgAnim = primaryBackground.GetComponent<Animation>(); 
+        primaryBackgAnim = primaryBackground.GetComponent<Animation>();
         secondaryBackgAnim = secondaryBackground.GetComponent<Animation>();
-
-        //StartCoroutine("BackgroundAppear");
     }
 
     public IEnumerator BackgroundAppear()

@@ -32,9 +32,11 @@ public static class SaveSystem
         else
         {
             Debug.LogError("Save file not found in " + path + "\nCreating new save");
-            GameController.instance.player.SavePlayer(true);
-
-            return LoadPlayer();
+            Player firstPlayer = new Player();
+            SavePlayer(firstPlayer);
+            PlayerData firstPlayerData = new PlayerData(firstPlayer);
+            
+            return firstPlayerData;
         }
     }
 }

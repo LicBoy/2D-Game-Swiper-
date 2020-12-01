@@ -76,11 +76,10 @@ public class ProjectilesGenerator : MonoBehaviour
         print("COUNTING DEFENDED asters. Amount of defended asters :" + amount);
         for(int i=0; i<amount; i++)
         {
-            int temp = Random.Range(1, projesOnCurWave);
+            int temp = Random.Range(1, projesOnCurWave-2);
             while(defendedAsteroidArray.Contains(temp))
-                temp = Random.Range(1, projesOnCurWave);
+                temp = Random.Range(1, projesOnCurWave-2);
             defendedAsteroidArray[i] = temp;
-            print("Dropped on proj " + temp);
         }
 
         print("Totally will be dropped " + amount + " defened asters of totally " + projesOnCurWave);

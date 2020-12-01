@@ -10,9 +10,6 @@ public class Player : MonoBehaviour
     public int maxWave;
     public int highscore;
     public int score;
-    public string gameLanguage;
-    public bool isDarkTheme;
-    public bool soundOn;
 
     public Color fullHealthColor;
     public Color lowestHealthColor;
@@ -23,6 +20,16 @@ public class Player : MonoBehaviour
     private float blueChange;
     private Animation animation;
     private SpriteRenderer spriteRenderer;
+
+    public Player()
+    {
+        this.health = 100;
+        this.armor = 0;
+        this.wave = 1;
+        this.maxWave = 0;
+        this.highscore = 0;
+        this.score = 0;
+    }
 
     // Start is called before the first frame update
     void Start()

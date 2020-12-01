@@ -34,7 +34,7 @@ public class MirrorLineColliderScript : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         ProjectileBehaviour otherProjectileObject = other.GetComponent<ProjectileBehaviour>();
-        if (otherProjectileObject != null)
+        if (otherProjectileObject != null && other.gameObject != null)
         {
             if(otherProjectileObject.GetDamage(1))
             {

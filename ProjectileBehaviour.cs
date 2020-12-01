@@ -20,7 +20,7 @@ public class ProjectileBehaviour : MonoBehaviour
     void Start()
     {
         float randomisedScale = UnityEngine.Random.Range(0.75f, 1.25f);
-        float randomisedX = UnityEngine.Random.Range(-2.5f, 2.5f);
+        float randomisedX = UnityEngine.Random.Range(-1.5f, 1.5f);
 
         transform.localScale = new Vector3(randomisedScale, randomisedScale, randomisedScale);
         transform.position = new Vector3(randomisedX, spawnY, 0);

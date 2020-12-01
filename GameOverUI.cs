@@ -37,9 +37,4 @@ public class GameOverUI : MonoBehaviour
     {
         GameController.instance.GetComponent<GameController>().StartCoroutine("LoadPlayerData");
     }
-
-    public void LoadMainMenuScene()
-    {
-        SceneManager.LoadScene(0);
-    }
 }

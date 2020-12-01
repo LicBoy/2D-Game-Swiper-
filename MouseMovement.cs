@@ -34,7 +34,6 @@ public class MouseMovement : MonoBehaviour
 
     public float timeToLive = 0.5f;
     public int oneSwipeKillsCounter = 0;
-    public GameObject gun;
     public LineRenderer mirrorLine;
     public StreakUIController StreakUIController;
     public Gradient bigLineGradient = new Gradient();
@@ -52,7 +51,6 @@ public class MouseMovement : MonoBehaviour
         edgeCollider = GetComponent<EdgeCollider2D>();
 
         mirrorLine.gameObject.SetActive(false);
-        gun.SetActive(false);
     }
 
     // Update is called once per frame
@@ -186,7 +184,7 @@ public class MouseMovement : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         ProjectileBehaviour otherProjectileObject = other.GetComponent<ProjectileBehaviour>();
-        if (otherProjectileObject != null)
+        if (otherProjectileObject != null && other.gameObject != null)
         {
             killedProj = otherProjectileObject.GetDamage(lineDamage);
             if(killedProj)
@@ -204,16 +202,6 @@ public class MouseMovement : MonoBehaviour
                 }
             }
         }
-    }
-
-    //Will be deleted
-    void GunAnimation(Collider2D proj)
-    {
-        gun.transform.position = linerend.GetPosition(0);
-        Vector3 shootDir = linerend.GetPosition(1) - linerend.GetPosition(0);
-        float angleRad = Mathf.Atan2(linerend.GetPosition(1).y - gun.transform.position.y, linerend.GetPosition(1).x - gun.transform.position.x);
-        float angleDeg = (180 / Mathf.PI) * angleRad;
-        gun.transform.rotation = Quaternion.Euler(0, 0, angleDeg);
     }
 
     public void ChangeLineDuration(float duration, bool isInfinite = false)
@@ -282,11 +270,12 @@ public class MouseMovement : MonoBehaviour
         }
     }
 
-    public void GameOverChanges()
+    public void RemoveAllBonuses()
     {
         lineBiggerBonusActive = false;
         lineDurationBonusActive = false;
         mirrorLineBonusActive = false;
+        vampirismBonusActive = false;
     }
 
     private Vector3 GetMouseVector3()
