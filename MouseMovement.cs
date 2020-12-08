@@ -184,7 +184,7 @@ public class MouseMovement : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         ProjectileBehaviour otherProjectileObject = other.GetComponent<ProjectileBehaviour>();
-        if (otherProjectileObject != null && other.gameObject != null)
+        if (otherProjectileObject != null && otherProjectileObject.health > 0)
         {
             killedProj = otherProjectileObject.GetDamage(lineDamage);
             if(killedProj)

@@ -17,7 +17,7 @@ public class MirrorLineColliderScript : MonoBehaviour
 
     void Start()
     {
-        GetComponent<LineRenderer>().colorGradient = defaultColorGradient;
+        //GetComponent<LineRenderer>().colorGradient = defaultColorGradient;
     }
 
     void Update()
@@ -34,7 +34,7 @@ public class MirrorLineColliderScript : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         ProjectileBehaviour otherProjectileObject = other.GetComponent<ProjectileBehaviour>();
-        if (otherProjectileObject != null && other.gameObject != null)
+        if (otherProjectileObject != null && otherProjectileObject.health > 0)
         {
             if(otherProjectileObject.GetDamage(1))
             {

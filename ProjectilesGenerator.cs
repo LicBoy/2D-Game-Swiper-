@@ -56,7 +56,7 @@ public class ProjectilesGenerator : MonoBehaviour
         if (generateCounter >= coldown)
         {
             generateCounter = UnityEngine.Random.Range(0f, 0.7f);
-            GameObject newProjectile = GameObject.Instantiate(RandomWhichAsteroid(), transform);
+            GameObject.Instantiate(RandomWhichAsteroid(), transform);
         }
     }
 

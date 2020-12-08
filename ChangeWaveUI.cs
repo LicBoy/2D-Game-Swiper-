@@ -98,5 +98,18 @@ public class ChangeWaveUI : MonoBehaviour
     public void GameOverChanges()
     {
         isBonusPanelActive = false;
+        GameController.instance.RemoveAllBonuses();
+    }
+
+    public void TurnMusicOff(float time)
+    {
+        GameController.instance.StopMusic(time);
+        StartCoroutine("ShowAdAfterTime", time);
+    }
+
+    IEnumerator ShowAdAfterTime(float time)
+    {
+        yield return new WaitForSeconds(time);
+        GameController.instance.GetComponent<AdManager>().DisplayInterstitial();
     }
 }

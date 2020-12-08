@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 
 public class GameOverUI : MonoBehaviour
 {
@@ -36,5 +34,10 @@ public class GameOverUI : MonoBehaviour
     public void RestartGame()
     {
         GameController.instance.GetComponent<GameController>().StartCoroutine("LoadPlayerData");
+    }
+
+    public void DisplayAd()
+    {
+        GameController.instance.GetComponent<AdManager>().DisplayInterstitial();
     }
 }

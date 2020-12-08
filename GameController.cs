@@ -30,6 +30,7 @@ public class GameController : MonoBehaviour
     public bool changingLevel = false;
 
     public Vector3 cityScale;
+    public AudioSource gameMusic;
     private float originalResAspect = 800f / 480f;
 
     private void Awake()
@@ -48,11 +49,15 @@ public class GameController : MonoBehaviour
     {
         bonusGenerator = GetComponent<BonusGenerator>();
         projGenerator = GetComponent<ProjectilesGenerator>();
+        gameMusic = GetComponent<AudioSource>();
+
+        CalculatePlayerResolution();
     }
 
     // Update is called once per frame
     void Update()
     {
+
         if (!changingLevel && SceneManager.GetActiveScene().buildIndex == 1)
         {
             projGenerator.GenerateProjectiles();
@@ -124,18 +129,6 @@ public class GameController : MonoBehaviour
         backgroundController.SetTheme();
         projGenerator.SetCurrentTheme();
 
-        float newAspect = (float)Screen.height / (float)Screen.width;
-        player.transform.localScale = cityScale * (originalResAspect / newAspect) + new Vector3(0.01f, 0.01f, 0.01f);
-        player.transform.position = new Vector3(player.transform.position.x, -5, 0);
-        print("Original aspect: " + originalResAspect + "\nCurrent resolution: " + newAspect + "\n Calculated scale: " + player.transform.localScale);
-        walls[0].transform.position = new Vector3(walls[0].transform.position.x * (originalResAspect / newAspect) - 0.1f,
-            walls[0].transform.position.y,
-            walls[0].transform.position.z);
-        walls[1].transform.position = new Vector3(walls[1].transform.position.x * (originalResAspect / newAspect) + 0.1f,
-            walls[1].transform.position.y,
-            walls[1].transform.position.z);
-
-
         projesKilled = 0;
         totalProjsKilled = 0;
 
@@ -161,12 +154,14 @@ public class GameController : MonoBehaviour
         changingLevel = true;
         backgroundController.StartCoroutine("BackgroundAppear");
         yield return new WaitForSeconds(changeWavePauseTime);
+
         changingLevel = false;
     }
 
     public void GameOver()
     {
         StartCoroutine("DestroyAllRemainingProjectiles");
+        StopMusic(3f);
 
         projesKilled = 0;
         totalProjsKilled = 0;
@@ -187,12 +182,7 @@ public class GameController : MonoBehaviour
         if (player.wave > player.maxWave)
             player.maxWave = player.wave;
 
-        lineRenderer.GetComponent<MouseMovement>().RemoveAllBonuses();
-        for (int i = 0; i < blocks.Length; i++) //SKYBLOCKS
-        {
-            blocks[i].GameOverChanges();
-            blocks[i].CalculateAmountOfHealth(1);
-        }
+        RemoveAllBonuses();
         changeWaveUI.GameOverChanges();
 
         gameoverUI.gameObject.SetActive(true);
@@ -201,6 +191,19 @@ public class GameController : MonoBehaviour
 
         print("GAME OVER");
         changingLevel = true;
+    }
+
+    public void RemoveAllBonuses()
+    {
+        lineRenderer.GetComponent<MouseMovement>().RemoveAllBonuses();
+        bonusGenerator.amountOfDrops = 1;
+        for (int i = 0; i < blocks.Length; i++) //SKYBLOCKS
+        {
+            blocks[i].RemoveBonus();
+            blocks[i].CalculateAmountOfHealth(1);
+        }
+
+        StopCoroutine("DoublePointsBonus"); bonusDoubler = 1;
     }
 
     public void GameOverPlayerStats()
@@ -228,11 +231,59 @@ public class GameController : MonoBehaviour
                 yield return new WaitForSeconds(0.2f);
             }
         }
-
     }
 
-    public void LoadMainMenu()
+    void CalculatePlayerResolution()
     {
-        SceneManager.LoadScene(0);
+        float newAspect = (float)Screen.height / (float)Screen.width;
+        player.transform.localScale = cityScale * (originalResAspect / newAspect) + new Vector3(0.01f, 0.01f, 0.01f);
+        player.transform.position = new Vector3(player.transform.position.x, -5, 0);
+        print("Original aspect: " + originalResAspect + "\nCurrent resolution: " + newAspect + "\n Calculated scale: " + player.transform.localScale);
+        walls[0].transform.position = new Vector3(walls[0].transform.position.x * (originalResAspect / newAspect) - 0.1f,
+            walls[0].transform.position.y,
+            walls[0].transform.position.z);
+        walls[1].transform.position = new Vector3(walls[1].transform.position.x * (originalResAspect / newAspect) + 0.1f,
+            walls[1].transform.position.y,
+            walls[1].transform.position.z);
+    }
+
+    //MUSIC FUNCTIONS
+    IEnumerator FadeSound(float time)
+    {
+        float t = time;
+        while (t > 0)
+        {
+            yield return null;
+            t -= Time.deltaTime;
+            gameMusic.volume = t / time;
+        }
+        gameMusic.volume = 0;
+        gameMusic.Stop();
+        yield break;
+    }
+
+    IEnumerator GrowSound(float time)
+    {
+        float t = 0;
+        while (t < time)
+        {
+            yield return null;
+            t += Time.deltaTime;
+            gameMusic.volume = t / time;
+        }
+        gameMusic.volume = 1;
+        yield break;
+    }
+
+    public void StartMusic(float musicGrowTime)
+    {
+        gameMusic.volume = 0;
+        gameMusic.Play();
+        StartCoroutine("GrowSound", musicGrowTime);
+    }
+
+    public void StopMusic(float musicFadeTime)
+    {
+        StartCoroutine("FadeSound", musicFadeTime);
     }
 }

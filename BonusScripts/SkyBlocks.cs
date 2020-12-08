@@ -11,7 +11,7 @@ public class SkyBlocks : MonoBehaviour
 
     private float counter = 0f;
     private float bonusDuration;
-    private bool activated = false;
+    public bool activated = false;
     private Color originalColor;
     private int lastTouched;
     private int curWaveHealth = 25;
@@ -110,10 +110,11 @@ public class SkyBlocks : MonoBehaviour
         health = curWaveHealth;
     }
 
-    public void GameOverChanges()
+    public void RemoveBonus()
     {
         curWaveHealth = 25;
         health = curWaveHealth;
-        activated = false;
+        counter = bonusDuration;
     }
+
 }

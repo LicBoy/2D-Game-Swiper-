@@ -28,6 +28,11 @@ public class SceneLoader : MonoBehaviour
         if(level == 1)
         {
             GameController.instance.StartCoroutine("LoadPlayerData");
+            bool isMusicOn = PlayerPrefs.GetInt(MainMenuScript.SoundOn) == 1 ? true : false;
+            if (isMusicOn)
+            {
+                GameController.instance.StartMusic(7f);
+            }
         }
     }
 }

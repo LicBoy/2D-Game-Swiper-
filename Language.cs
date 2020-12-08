@@ -38,7 +38,7 @@ public class Language
         {MenuOptionsWord, "Настройки"},
         {MenuLangWord, "Язык" },
         {MenuThemeWord, "Тёмный режим"},
-        {MenuSoundWord, "Звук"}
+        {MenuSoundWord, "Музыка"}
     };
 
     //PlayMode russian translation
@@ -71,7 +71,7 @@ public class Language
         {MenuOptionsWord, "Options"},
         {MenuLangWord, "Language" },
         {MenuThemeWord, "Dark theme"},
-        {MenuSoundWord, "Sound"}
+        {MenuSoundWord, "Music"}
     };
 
     //PlayMode english translation
