@@ -6,8 +6,16 @@ using GoogleMobileAds.Api;
 
 public class AdManager : MonoBehaviour
 {
+    public bool isTesting = false;
+
     private string APP_ID = "ca-app-pub-5140417694522204~2011401730";
-    string interstitial_ID = "ca-app-pub-3940256099942544/1033173712";
+
+    private string interstitial_ID;
+
+    //Actual ad ID *FOR REAL USE*
+    //string interstitial_ID = "ca-app-pub-5140417694522204/1915068932";
+    //Ad ID for TESTING
+    //string interstitial_ID = "ca-app-pub-3940256099942544/1033173712";
 
     private InterstitialAd interstitial;
 
@@ -16,6 +24,11 @@ public class AdManager : MonoBehaviour
     {
         //when published game
         MobileAds.Initialize(APP_ID);
+
+        if(!isTesting)
+            interstitial_ID = "ca-app-pub-5140417694522204/1915068932";
+        else
+            interstitial_ID = "ca-app-pub-3940256099942544/1033173712";
 
         RequestInterstitial();
     }
@@ -38,13 +51,17 @@ public class AdManager : MonoBehaviour
         // Called when the ad click caused the user to leave the application.
         this.interstitial.OnAdLeavingApplication += HandleOnAdLeavingApplication;
 
-        //FOR REAL APP
-        //AdRequest adRequest = new AdRequest.Builder().Build();
 
-        //FOR TESTING
-        AdRequest adRequest = new AdRequest.Builder().
-            AddTestDevice("2077ef9a63d2b398840261c8221a0c9b").Build();
-
+        AdRequest adRequest;
+        if(!isTesting)
+        {
+             adRequest = new AdRequest.Builder().Build();
+        }
+        else //FOR TESTING
+        {
+            adRequest = new AdRequest.Builder().AddTestDevice("2077ef9a63d2b398840261c8221a0c9b").Build();
+        }
+        
         interstitial.LoadAd(adRequest);
     }
 
@@ -65,6 +82,8 @@ public class AdManager : MonoBehaviour
     {
         MonoBehaviour.print("HandleFailedToReceiveAd event received with message: "
                             + args.Message);
+        UnsubscrubeEvents();
+        RequestInterstitial();
     }
 
     public void HandleOnAdOpened(object sender, EventArgs args)

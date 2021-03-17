@@ -21,6 +21,9 @@ public class BackgroundBehaviour : MonoBehaviour
     private string secondaryAnimFadeName;
     private string secondaryAnimAppearName;
 
+    public ChangeWaveUI changeWaveScript;
+    public StreakUIController streakScript;
+
     public void SetTheme()
     {
         isDarkTheme = PlayerPrefs.GetInt(MainMenuScript.DarkTheme) == 1 ? true : false;
@@ -51,6 +54,9 @@ public class BackgroundBehaviour : MonoBehaviour
         }
         primaryBackgAnim = primaryBackground.GetComponent<Animation>();
         secondaryBackgAnim = secondaryBackground.GetComponent<Animation>();
+
+        changeWaveScript.ChangeColorDependingOnTheme(isDarkTheme);
+        streakScript.ChangeColorDepengingOnTheme(isDarkTheme);
     }
 
     public IEnumerator BackgroundAppear()

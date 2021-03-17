@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class StreakUIController : MonoBehaviour
 {
+    public TMP_ColorGradient[] curColorModeGradients; //at index 0 - brightTheme, 1 - darkTheme
+
     private float counter = 0f;
     private float t = 0f;
     private float streakFontSize;
@@ -56,6 +58,20 @@ public class StreakUIController : MonoBehaviour
                 streakText.fontSize = streakFontSize;
                 counter = 0f; t = 0f;
             }
+        }
+    }
+
+    public void ChangeColorDepengingOnTheme(bool isDarkTheme)
+    {
+        if (isDarkTheme)
+        {
+            streakWord.colorGradientPreset = curColorModeGradients[1];
+            //streakText.colorGradientPreset = curColorModeGradients[1];
+        }
+        else
+        {
+            streakWord.colorGradientPreset = curColorModeGradients[0];
+            //streakText.colorGradientPreset = curColorModeGradients[0];
         }
     }
 

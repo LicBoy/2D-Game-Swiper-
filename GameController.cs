@@ -42,6 +42,12 @@ public class GameController : MonoBehaviour
         }
         instance = this;
         DontDestroyOnLoad(gameObject);
+
+        #if UNITY_EDITOR
+                Debug.unityLogger.logEnabled = true;
+        #else
+                Debug.unityLogger.logEnabled = false;
+        #endif
     }
 
     // Start is called before the first frame update

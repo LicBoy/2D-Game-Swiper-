@@ -272,10 +272,10 @@ public class MouseMovement : MonoBehaviour
 
     public void RemoveAllBonuses()
     {
-        lineBiggerBonusActive = false;
-        lineDurationBonusActive = false;
-        mirrorLineBonusActive = false;
-        vampirismBonusActive = false;
+        counterOfLineBiggerBonus = lineBiggerBonusDuration;
+        counterOfLineDurBonus = lineDurBonusDuration;
+        counterMirrorLineBonus = mirrorLineBonusDuration;
+        counterVampirismBonus = vampirismBonusDuration;
     }
 
     private Vector3 GetMouseVector3()

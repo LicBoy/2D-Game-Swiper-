@@ -6,6 +6,8 @@ using UnityEngine.UI;
 
 public class ChangeWaveUI : MonoBehaviour
 {
+    public TMP_ColorGradient[] curColorModeGradients; //at index 0 - brightTheme, 1 - darkTheme
+
     public TextMeshProUGUI textUI;
     public TextMeshProUGUI integerUI;
     public TextMeshProUGUI bonusCounter;
@@ -22,6 +24,7 @@ public class ChangeWaveUI : MonoBehaviour
 
     private void Start()
     {
+        
         disabledColor = bonusPanelButtons[0].GetComponent<Button>().colors;
     }
 
@@ -37,6 +40,20 @@ public class ChangeWaveUI : MonoBehaviour
                 BonusPanelClose(curWave);
             }
             bonusesTimer += Time.deltaTime;
+        }
+    }
+
+    public void ChangeColorDependingOnTheme(bool isDarkTheme)
+    {
+        if (isDarkTheme)
+        {
+            textUI.colorGradientPreset = curColorModeGradients[1];
+            integerUI.colorGradientPreset = curColorModeGradients[1];
+        }
+        else
+        {
+            textUI.colorGradientPreset = curColorModeGradients[0];
+            integerUI.colorGradientPreset = curColorModeGradients[0];
         }
     }
 

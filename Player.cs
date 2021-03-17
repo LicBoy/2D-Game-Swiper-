@@ -177,16 +177,20 @@ public class Player : MonoBehaviour
 
     public void Heal(int val)
     {
+        int healthBefore = health;
         health = Mathf.Clamp(health + val, 0, 100);
-        ChangeColorDependOnHP();
-        print("Healed for " + val + " hp");
+        if (healthBefore != health)
+        {
+            ChangeColorDependOnHP();
+            print("Healed for " + val + " hp");
+        }
     }
 
     public void GiveArmor(int val)
     {
-        int armorWas = armor;
+        int armorBefore = armor;
         armor = Mathf.Clamp(armor + val, 0, 50);
-        if(armorWas != armor)
+        if(armorBefore != armor)
         {
             animation.Play("CityArmorGainAnim");
             print("Added " + val + " armor");

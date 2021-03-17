@@ -4,26 +4,6 @@ using UnityEngine;
 
 public class WallsScript : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    void DefineResolutionPosition()
-    {
-        float screenWidth = Screen.width;
-        float screenHeight = Screen.height;
-
-
-    }
-
     private void OnTriggerEnter2D(Collider2D other)
     {
         if(other.GetComponent<ProjectileBehaviour>())

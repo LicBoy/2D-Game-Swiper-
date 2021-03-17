@@ -23,12 +23,6 @@ public class OptionsMenuScript : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     public void ButtonClick()
     {
         if(!gameObject.activeSelf)
